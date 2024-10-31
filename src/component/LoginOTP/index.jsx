@@ -1,32 +1,26 @@
+import React, { useEffect, useState } from "react";
 import { Avatar, Box, Button, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { CustomTextField } from "../CustomeTextField";
-import { Slide, toast } from "react-toastify";
+import { toast, Slide } from "react-toastify";
 import logo from "../../assets/logo.png";
+import { CustomTextField } from "../CustomeTextField";
+
 const LoginOTP = ({ setOpen }) => {
-  const [otpSent, setOtpSent] = useState(false); // Track OTP sent status
+  const [otpSent, setOtpSent] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [otpValues, setOtpValues] = useState(["", "", "", ""]); // State for OTP digits
 
   const initialValues = {
     phone: "",
-    otp: "",
   };
 
   const validationSchema = Yup.object({
     phone: Yup.string()
       .matches(/^\d{10}$/, "Mobile number must be 10 digits")
       .required("Please enter mobile number"),
-    otp: Yup.string().when("otpSent", {
-      is: true,
-      then: Yup.string()
-        .matches(/^\d{4}$/, "OTP must be 6 digits")
-        .required("Please enter OTP"),
-    }),
   });
 
-  // Function to handle OTP sending and enabling login mode
   const handleSendOtp = (setFieldValue) => {
     setOtpSent(true);
     setTimer(30);
@@ -40,28 +34,22 @@ const LoginOTP = ({ setOpen }) => {
       theme: "colored",
       transition: Slide,
     });
-    setFieldValue("otp", ""); // Reset OTP field for new entry
-    // Reset OTP field for new entry
+    setOtpValues(["", "", "", ""]); // Reset OTP boxes
   };
 
-  // Function to handle login after entering OTP
-  const handleLogin = () => {
-    setOtpSent(false);
-    console.log("Logged in successfully");
-    toast.success("Logged in successfully!", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-      transition: Slide,
-    });
-    setOpen("form-details");
+  const handleOtpChange = (e, index) => {
+    const { value } = e.target;
+    if (/^\d$/.test(value) || value === "") {
+      const newOtpValues = [...otpValues];
+      newOtpValues[index] = value;
+      setOtpValues(newOtpValues);
+
+      if (value && index < 3) {
+        document.getElementById(`otp-input-${index + 1}`).focus();
+      }
+    }
   };
 
-  // Countdown timer effect
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => {
@@ -75,10 +63,26 @@ const LoginOTP = ({ setOpen }) => {
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={() => {}}
+      onSubmit={(values) => {
+        const otp = otpValues.join("");
+        console.log("Submitted Data:", { phone: values.phone, otp });
+        setOtpSent(false);
+        console.log("Logged in successfully");
+        toast.success("Logged in successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+        setOpen("form-details");
+      }}
     >
-      {({ values, errors, touched, setFieldValue }) => (
-        <Form>
+      {({ values, errors, touched, setFieldValue, handleSubmit }) => (
+        <Form onSubmit={handleSubmit}>
           <Box
             sx={{
               border: "1px solid #D9D9D9",
@@ -93,11 +97,9 @@ const LoginOTP = ({ setOpen }) => {
           >
             <Box
               sx={{
-                // backgroundColor: "blue",
                 width: "100%",
                 textAlign: "center",
                 color: "darkslategray",
-                // padding: "10px 0px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -126,25 +128,38 @@ const LoginOTP = ({ setOpen }) => {
               />
 
               {otpSent && (
-                <CustomTextField
-                  label="Enter OTP"
-                  name="otp"
-                  helperText={touched.otp && errors.otp ? errors.otp : ""}
-                />
+                <Box display="flex" gap={1} justifyContent="center">
+                  {otpValues.map((digit, index) => (
+                    <input
+                      key={index}
+                      id={`otp-input-${index}`}
+                      type="text"
+                      maxLength="1"
+                      value={digit}
+                      onChange={(e) => handleOtpChange(e, index)}
+                      style={{
+                        width: "2rem",
+                        height: "2rem",
+                        textAlign: "center",
+                        fontSize: "1.2rem",
+                      }}
+                    />
+                  ))}
+                </Box>
               )}
 
               <Button
                 size="medium"
                 variant="contained"
                 onClick={() => {
-                  otpSent ? handleLogin() : handleSendOtp(setFieldValue);
+                  otpSent ? handleSubmit() : handleSendOtp(setFieldValue);
                 }}
                 disabled={
                   otpSent
-                    ? values.otp.length !== 6 // Enable when OTP is 6 digits
-                    : values.phone.length !== 10 // Enable when phone is 10 digits
+                    ? otpValues.some((value) => value === "")
+                    : values.phone.length !== 10
                 }
-                sx={{ textTransform: "none" }}
+                sx={{ textTransform: "none", mt: 2 }}
               >
                 {otpSent ? "Login" : "Verify Mobile Number"}
               </Button>
@@ -155,7 +170,7 @@ const LoginOTP = ({ setOpen }) => {
                   variant="text"
                   color="primary"
                   onClick={() => handleSendOtp(setFieldValue)}
-                  disabled={timer > 0} // Enable Resend OTP after timer ends
+                  disabled={timer > 0}
                   sx={{ mt: 1, textTransform: "none" }}
                 >
                   {timer > 0 ? `Resend OTP in ${timer} seconds` : "Resend OTP"}
