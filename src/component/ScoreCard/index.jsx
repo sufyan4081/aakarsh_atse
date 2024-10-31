@@ -46,11 +46,11 @@ const ScoreCard = ({ userDetails }) => {
           🎉 Congratulations, {userDetails.name}! 🎉
         </Typography>
 
-        <Box sx={{ marginBottom: 2 }}>
+        {/* <Box sx={{ marginBottom: 2 }}>
           <Typography variant="h6">Exam Results</Typography>
           <Typography variant="body1">Score: 15 / 30</Typography>
           <Typography variant="body1">Percentage: 50%</Typography>
-        </Box>
+        </Box> */}
 
         {/* Scholarship Percentage */}
         <Box sx={{ marginBottom: 2 }}>

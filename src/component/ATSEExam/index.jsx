@@ -224,7 +224,7 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
           open={examDialog}
           handleClose={handleExamDialogClose}
           handleSubmit={handleConfirmExam}
-          message="Are you sure to submit the exam?"
+          message="Are you sure you want to submit the exam?"
         />
       )}
     </Box>
