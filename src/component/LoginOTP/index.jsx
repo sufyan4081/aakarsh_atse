@@ -1,42 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Avatar, Box, Button, Typography } from "@mui/material";
-import { Form, Formik } from "formik";
+import { Formik, Form, useFormik } from "formik";
 import * as Yup from "yup";
-import { toast, Slide } from "react-toastify";
 import logo from "../../assets/logo.png";
 import { CustomTextField } from "../CustomeTextField";
-
+import { useMutation } from "@tanstack/react-query";
+import { ExamContext } from "../../atseContext/ExamProvider";
+import sendOTP, { verifyOTP } from "../../api/ATSEOtp";
 const LoginOTP = ({ setOpen }) => {
+  const { setMobileNumber } = useContext(ExamContext);
+
   const [otpSent, setOtpSent] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [otpValues, setOtpValues] = useState(["", "", "", ""]); // State for OTP digits
+  const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
 
+  // Initial form values
   const initialValues = {
-    phone: "",
+    mobileNumber: "",
   };
 
+  // Form validation schema
   const validationSchema = Yup.object({
-    phone: Yup.string()
+    mobileNumber: Yup.string()
       .matches(/^\d{10}$/, "Mobile number must be 10 digits")
       .required("Please enter mobile number"),
   });
 
-  const handleSendOtp = (setFieldValue) => {
-    setOtpSent(true);
-    setTimer(30);
-    toast.success("OTP sent successfully", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-      transition: Slide,
-    });
-    setOtpValues(["", "", "", ""]); // Reset OTP boxes
-  };
-
+  // Function to handle OTP input changes
   const handleOtpChange = (e, index) => {
     const { value } = e.target;
     if (/^\d$/.test(value) || value === "") {
@@ -44,12 +34,61 @@ const LoginOTP = ({ setOpen }) => {
       newOtpValues[index] = value;
       setOtpValues(newOtpValues);
 
-      if (value && index < 3) {
+      // Automatically focus the next input if a digit is entered
+      if (value && index < 5) {
         document.getElementById(`otp-input-${index + 1}`).focus();
       }
     }
   };
 
+  const sendOtpMutation = useMutation({
+    mutationFn: (payload) => sendOTP(payload),
+    onSuccess: (data) => {
+      setOtpSent(true);
+      setTimer(30);
+      setOtpValues(["", "", "", "", "", ""]);
+    },
+    onError: (data) => {
+      setOtpValues(["", "", "", "", "", ""]);
+    },
+  });
+
+  const verifyOtpMutation = useMutation({
+    mutationFn: (payload) => verifyOTP(payload),
+    onSuccess: (data, id) => {
+      setOtpSent(false);
+      setMobileNumber(id.mobileNumber);
+      console.log("phoneNumberLogin", id.mobileNumber);
+      setOpen("form-details");
+      setOtpValues(["", "", "", "", "", ""]);
+    },
+    onError: (data) => {
+      setOtpValues(["", "", "", "", "", ""]);
+    },
+  });
+
+  const handleOnSubmit = (values) => {
+    const otp = otpValues.join("");
+    const payload = {
+      mobileNumber: values.mobileNumber,
+      enteredOTP: otp,
+    };
+
+    console.log("payload", payload);
+
+    verifyOtpMutation.mutate(payload);
+  };
+
+  // useFormik hook to manage form state
+  const formik = useFormik({
+    initialValues,
+    validationSchema,
+    onSubmit: handleOnSubmit,
+  });
+
+  const { values } = formik;
+
+  // Countdown timer for resending OTP
   useEffect(() => {
     if (timer > 0) {
       const countdown = setInterval(() => {
@@ -61,27 +100,11 @@ const LoginOTP = ({ setOpen }) => {
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={initialValues} // Make sure to set initialValues here
       validationSchema={validationSchema}
-      onSubmit={(values) => {
-        const otp = otpValues.join("");
-        console.log("Submitted Data:", { phone: values.phone, otp });
-        setOtpSent(false);
-        console.log("Logged in successfully");
-        toast.success("Logged in successfully!", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "colored",
-          transition: Slide,
-        });
-        setOpen("form-details");
-      }}
+      onSubmit={handleOnSubmit}
     >
-      {({ values, errors, touched, setFieldValue, handleSubmit }) => (
+      {({ handleSubmit, values, errors, touched, handleChange }) => (
         <Form onSubmit={handleSubmit}>
           <Box
             sx={{
@@ -122,9 +145,15 @@ const LoginOTP = ({ setOpen }) => {
             >
               <CustomTextField
                 label="Enter Mobile Number"
-                name="phone"
-                helperText={touched.phone && errors.phone ? errors.phone : ""}
-                disabled={otpSent} // Disable after OTP sent
+                name="mobileNumber"
+                value={values.mobileNumber} // Make sure to set value from Formik
+                onChange={handleChange} // Handle change using Formik
+                helperText={
+                  touched.mobileNumber && errors.mobileNumber
+                    ? errors.mobileNumber
+                    : ""
+                }
+                disabled={otpSent}
               />
 
               {otpSent && (
@@ -152,12 +181,16 @@ const LoginOTP = ({ setOpen }) => {
                 size="medium"
                 variant="contained"
                 onClick={() => {
-                  otpSent ? handleSubmit() : handleSendOtp(setFieldValue);
+                  otpSent
+                    ? handleSubmit()
+                    : sendOtpMutation.mutate({
+                        mobileNumber: values.mobileNumber,
+                      });
                 }}
                 disabled={
                   otpSent
                     ? otpValues.some((value) => value === "")
-                    : values.phone.length !== 10
+                    : values.mobileNumber.length !== 10
                 }
                 sx={{ textTransform: "none", mt: 2 }}
               >
@@ -169,7 +202,11 @@ const LoginOTP = ({ setOpen }) => {
                   size="small"
                   variant="text"
                   color="primary"
-                  onClick={() => handleSendOtp(setFieldValue)}
+                  onClick={() =>
+                    sendOtpMutation.mutate({
+                      mobileNumber: values.mobileNumber,
+                    })
+                  }
                   disabled={timer > 0}
                   sx={{ mt: 1, textTransform: "none" }}
                 >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Box,
   Button,
@@ -10,21 +10,46 @@ import {
 import logo from "../../assets/logo.png";
 import { Slide, toast } from "react-toastify";
 import ConfirmationDialog from "../ConfirmationDialog";
+import { ExamContext } from "../../atseContext/ExamProvider";
+import { useMutation } from "@tanstack/react-query";
+import { examDataById } from "../../api/AtseExam";
 
 const ATSEExam = ({ questions, userDetails, setOpen }) => {
+  const { examNameData } = useContext(ExamContext);
+  console.log("examNameData", examNameData);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
   const [examDialog, setExamDialog] = useState(false);
   const [confirmExam, setConfirmExam] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false); // New state to track submission status
-
+  const [timeLeft, setTimeLeft] = useState(examNameData.duration * 60); // 30 minutes in
+  const [currentData, setCurrentData] = useState("");
   const handleExamDialogOpen = () => {
     setExamDialog(true);
   };
   const handleExamDialogClose = () => {
     setExamDialog(false);
   };
+
+  // Mutation for fetching exam data
+  const examDataByIdMutation = useMutation({
+    mutationFn: (payload) => examDataById(payload),
+    onSuccess: (data) => {
+      console.log("Exam Data:", data); // Log the fetched exam data
+      setCurrentData(data.data);
+    },
+    onError: (error) => {
+      console.error("Error fetching exam data:", error);
+    },
+  });
+
+  console.log("currentData", currentData);
+  // Fetch exam data when component mounts
+  useEffect(() => {
+    if (examNameData) {
+      examDataByIdMutation.mutate(examNameData);
+    }
+  }, [examNameData]); // Dependency array ensures this runs on mount and when examNameData changes
 
   // Timer effect
   useEffect(() => {
@@ -77,18 +102,9 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
     // Mark as submitted
     if (!isSubmitted) {
       setIsSubmitted(true);
-      toast.success("Exam submitted successfully!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-        transition: Slide,
-      });
+      examDataByIdMutation.mutate(examNameData);
     }
-    console.log("Selected Answers:", selectedAnswers);
+    // console.log("Selected Answers:", selectedAnswers);
     setOpen("score-card");
   };
 
@@ -109,7 +125,7 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
       }}
     >
       <Typography textAlign="center" variant="h5">
-        ATSE Exam
+        {examNameData?.title}
       </Typography>
       {/* User Information */}
       <Box
@@ -127,6 +143,9 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
           <Typography variant="body2">Name: {userDetails.name}</Typography>
           <Typography variant="body2">Class: {userDetails.class}</Typography>
           <Typography variant="body2">Stream: {userDetails.stream}</Typography>
+          <Typography variant="body2">
+            Exam Name: {examNameData.examName}
+          </Typography>
         </Box>
         <Box sx={{ textAlign: "right" }}>
           <img src={logo} width="60%" height="100%" alt="aakarsh logo" />
@@ -231,4 +250,4 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
   );
 };
 
-export default ATSEExam;
+export default React.memo(ATSEExam);

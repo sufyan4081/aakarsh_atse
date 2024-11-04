@@ -1,78 +1,263 @@
 import { Avatar, Box, Button, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import * as Yup from "yup";
 import { CustomTextField } from "../CustomeTextField";
-import { Slide, toast } from "react-toastify";
 import logo from "../../assets/logo.png";
 import { CustomSelectField } from "../CustomSelectField";
-import {
-  boardData,
-  branchData,
-  classData,
-  examData,
-  streamData,
-} from "../../data";
 import ConfirmationDialog from "../ConfirmationDialog";
-const UserDetail = ({ setOpen }) => {
-  const [examDialog, setExamDialog] = useState(false);
-  const [confirmExam, setConfirmExam] = useState(false);
+import { atseStudentReg } from "../../api/AtseUserFrom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getBoard } from "../../api/board";
+import { queryKey } from "../../utils/queryKey";
+import { getStream } from "../../api/stream";
+import { getClass } from "../../api/class";
+import { getExam } from "../../api/exam";
+import { getBranch } from "../../api/branch";
+import { ExamContext } from "../../atseContext/ExamProvider";
+import { api } from "../../api/axiosInstance";
+import { Slide, toast } from "react-toastify";
 
+const UserDetail = ({ setOpen }) => {
+  const { mobileNumber, setExamNameData, examNameData } =
+    useContext(ExamContext);
+  const [examDialog, setExamDialog] = useState(false);
+  const [formValues, setFormValues] = useState(null); // State to store form values before confirmation
+  console.log("mobileNumberForm", mobileNumber);
   const handleExamDialogOpen = () => {
     setExamDialog(true);
   };
+
   const handleExamDialogClose = () => {
     setExamDialog(false);
+    setFormValues(null); // Reset form values on close
   };
 
   const initialValues = {
     name: "",
-    fatherName: "",
+    father_name: "",
     email: "",
+    phoneNumber: mobileNumber,
     dob: "",
     board: "",
     class: "",
     stream: "",
-    exam: "",
+    select_exam: "",
     branch: "",
   };
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Name is required"),
-    fatherName: Yup.string().required("Father name is required"),
+    email: Yup.string().email().required("Email is required"),
+    father_name: Yup.string().required("Father name is required"),
     dob: Yup.string().required("DOB is required"),
     board: Yup.string().required("Board is required"),
     class: Yup.string().required("Class is required"),
     stream: Yup.string().required("Stream is required"),
-    exam: Yup.string().required("Exam is required"),
+    select_exam: Yup.string().required("Exam is required"),
     branch: Yup.string().required("Branch is required"),
   });
 
-  // exam starting
-  const handleSubmit = () => {
-    toast.success("Exam Started!", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "colored",
-      transition: Slide,
-    });
-    setOpen("exam");
+  const handleExamCheck = async () => {
+    try {
+      const res = await api.get(`/paperFormat/${examNameData._id}`);
+      console.log("res.data", res.data);
+
+      if (res.status === 200) {
+        // Exam found successfully
+        toast.success("Exam Started!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+        setExamNameData(res.data.data);
+        // Only open the exam dialog if the exam data is available
+        setOpen("exam");
+        return true; // Indicate success
+      }
+    } catch (error) {
+      // Check if the error has a response
+      if (error.response) {
+        const errorMessage = error.response.data.message || "An error occurred";
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+      } else {
+        toast.error("Network error or request timeout", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+      }
+      console.error("API Error:", error);
+    }
+    return false; // Indicate failure
   };
 
-  const handleConfirmExam = () => {
-    setConfirmExam(true);
-    handleSubmit();
-    handleExamDialogClose();
+  const handleUserForm = async (values) => {
+    try {
+      const res = await api.post("/registration_rec/create", values);
+      console.log("res.data", res.data);
+
+      if (res.status === 201) {
+        setExamNameData(res.data.data);
+        console.log("examNameData._id", examNameData._id);
+        toast.success("Registration Successful!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+        return true;
+      }
+    } catch (error) {
+      // Check if the error has a response
+      if (error.response) {
+        const errorMessage = error.response.data.message || "An error occurred";
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+        return false;
+      } else {
+        toast.error("Network error or request timeout", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Slide,
+        });
+        return false;
+      }
+    }
   };
+
+  // const handleOnSubmit = async (values) => {
+  //   console.log("Payload:", values); // Log values here for debugging
+  //   await handleUserForm(values); // Await user form handling
+  //   await handleExamCheck();
+
+  //   handleExamDialogClose(); // Close dialog after processing
+  // };
+
+  const handleOnSubmit = async (values) => {
+    console.log("Payload:", values); // Log values here for debugging
+    const registrationSuccess = await handleUserForm(values); // Await user form handling
+
+    if (registrationSuccess) {
+      // Only call handleExamCheck if registration was successful
+      const examCheckSuccess = await handleExamCheck();
+      if (examCheckSuccess) {
+        setOpen("exam");
+        handleExamDialogClose(); // Close dialog only if exam check is successful
+      } else {
+        handleExamDialogClose();
+      }
+    } else {
+      // Handle registration failure if needed
+      console.error("Registration failed, exam check will not proceed.");
+      handleExamDialogClose();
+    }
+  };
+
+  const { data: boardData } = useQuery({
+    queryKey: queryKey.board,
+    queryFn: getBoard,
+  });
+
+  const boardOptions = boardData?.data.map((b) => ({
+    value: b.name,
+    name: b.name,
+    image: b.boardImage,
+  }));
+
+  const { data: streamData } = useQuery({
+    queryKey: queryKey.stream,
+    queryFn: getStream,
+  });
+
+  const streamOptions = streamData?.data.map((b) => ({
+    value: b.stream,
+    name: b.stream,
+    image: b.streamImage,
+  }));
+
+  const { data: classData } = useQuery({
+    queryKey: queryKey.class,
+    queryFn: getClass,
+  });
+
+  const classOptions = classData?.data
+    .map((cl) => ({
+      value: cl.class,
+      name: cl.class,
+    }))
+    .sort((a, b) => a.value - b.value); // Sort classes numerically
+
+  const { data: examData } = useQuery({
+    queryKey: queryKey.exam,
+    queryFn: getExam,
+  });
+
+  const examOptions = examData?.data.map((b) => ({
+    value: b.examName,
+    name: b.examName,
+    image: b.image,
+  }));
+
+  const { data: branchData } = useQuery({
+    queryKey: queryKey.branch,
+    queryFn: getBranch,
+  });
+
+  const branchOptions = branchData?.data.map((b) => ({
+    value: b.branchName,
+    name: b.branchName,
+    image: b.imageUrl,
+  }));
 
   return (
     <>
-      <Formik initialValues={initialValues} validationSchema={validationSchema}>
-        {({ values, errors, touched, setFieldValue }) => (
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        validateOnMount={true}
+        onSubmit={(values) => {
+          setFormValues(values); // Store values before opening the dialog
+          handleExamDialogOpen(); // Open the dialog
+        }}
+      >
+        {({ errors, touched, handleSubmit }) => (
           <Form
             style={{
               width: "100vw",
@@ -96,11 +281,9 @@ const UserDetail = ({ setOpen }) => {
             >
               <Box
                 sx={{
-                  // backgroundColor: "blue",
                   width: "100%",
                   textAlign: "center",
                   color: "darkslategray",
-                  // padding: "10px 0px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
@@ -110,7 +293,7 @@ const UserDetail = ({ setOpen }) => {
                 <Typography fontWeight="bold" variant="h5">
                   User Details
                 </Typography>
-                <Avatar alt="Aakarsh" src={logo}></Avatar>
+                <Avatar alt="Aakarsh" src={logo} />
               </Box>
 
               <Box
@@ -129,10 +312,10 @@ const UserDetail = ({ setOpen }) => {
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <CustomTextField
                     label="Enter Father Name"
-                    name="fatherName"
+                    name="father_name"
                     helperText={
-                      touched.fatherName && errors.fatherName
-                        ? errors.fatherName
+                      touched.father_name && errors.father_name
+                        ? errors.father_name
                         : ""
                     }
                   />
@@ -155,7 +338,7 @@ const UserDetail = ({ setOpen }) => {
                     <CustomSelectField
                       label="Stream"
                       name="stream"
-                      options={streamData}
+                      options={streamOptions}
                       helperText={
                         touched.stream && errors.stream ? errors.stream : ""
                       }
@@ -165,7 +348,7 @@ const UserDetail = ({ setOpen }) => {
                     <CustomSelectField
                       label="Board"
                       name="board"
-                      options={boardData}
+                      options={boardOptions}
                       helperText={
                         touched.board && errors.board ? errors.board : ""
                       }
@@ -173,7 +356,7 @@ const UserDetail = ({ setOpen }) => {
                     <CustomSelectField
                       label="Class"
                       name="class"
-                      options={classData}
+                      options={classOptions}
                       helperText={
                         touched.class && errors.class ? errors.class : ""
                       }
@@ -185,10 +368,12 @@ const UserDetail = ({ setOpen }) => {
                   <Box sx={{ width: "100%" }}>
                     <CustomSelectField
                       label="Exam"
-                      name="exam"
-                      options={examData}
+                      name="select_exam"
+                      options={examOptions}
                       helperText={
-                        touched.exam && errors.exam ? errors.exam : ""
+                        touched.select_exam && errors.select_exam
+                          ? errors.select_exam
+                          : ""
                       }
                     />
                   </Box>
@@ -196,7 +381,7 @@ const UserDetail = ({ setOpen }) => {
                     <CustomSelectField
                       label="Branch"
                       name="branch"
-                      options={branchData}
+                      options={branchOptions}
                       helperText={
                         touched.branch && errors.branch ? errors.branch : ""
                       }
@@ -205,9 +390,10 @@ const UserDetail = ({ setOpen }) => {
                 </Box>
 
                 <Button
-                  onClick={handleExamDialogOpen}
+                  onClick={handleSubmit} // Trigger Formik's handleSubmit
                   size="medium"
                   variant="contained"
+                  type="button"
                 >
                   Start Exam
                 </Button>
@@ -216,11 +402,17 @@ const UserDetail = ({ setOpen }) => {
           </Form>
         )}
       </Formik>
+
       {examDialog && (
         <ConfirmationDialog
           open={examDialog}
-          handleClose={handleExamDialogClose}
-          handleSubmit={handleConfirmExam}
+          onClose={handleExamDialogClose}
+          onConfirm={() => {
+            if (formValues) {
+              handleOnSubmit(formValues); // Pass confirmed form values
+            }
+          }}
+          title="Confirm Exam"
           message="Are you sure you want to start the exam?"
         />
       )}

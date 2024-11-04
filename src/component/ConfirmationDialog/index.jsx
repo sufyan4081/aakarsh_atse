@@ -8,33 +8,34 @@ import DialogTitle from "@mui/material/DialogTitle";
 
 export default function ConfirmationDialog({
   open,
-  handleClose,
-  handleSubmit,
+  onClose, // Changed to onClose for consistency
+  onConfirm, // Changed to onConfirm for consistency
+  title, // Added title prop
   message,
 }) {
   return (
-    <>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title" color="red" textAlign="center">
-          Alert!
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {message}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>No</Button>
-          <Button onClick={handleSubmit} autoFocus>
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title" textAlign="center">
+        {title} {/* Use title prop */}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {message}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          No
+        </Button>
+        <Button onClick={onConfirm} color="primary" autoFocus>
+          Yes
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

@@ -8,33 +8,46 @@ import ScoreCard from "./component/ScoreCard";
 
 const App = () => {
   const [open, setOpen] = useState("login");
+  // const [open, setOpen] = useState("atseExam");
+
+  console.log("open", open);
   return (
     <Box
       sx={{
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "95vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      {open === "login" ? (
-        <LoginOTP setOpen={setOpen} />
-      ) : open === "form-details" ? (
-        <UserDetail setOpen={setOpen} />
-      ) : open === "exam" ? (
-        <ATSEExam
-          questions={questions}
-          userDetails={userDetails}
-          setOpen={setOpen}
-        />
-      ) : (
-        <ScoreCard userDetails={userDetails} />
-      )}
-      {/* <UserDetail setOpen={setOpen} /> */}
-      {/* <LoginOTP /> */}
-      {/* <ATSEExam questions={questions} userDetails={userDetails} /> */}
-      {/* <ScoreCard userDetails={userDetails} /> */}
+      {
+        open === "login" ? (
+          <LoginOTP setOpen={setOpen} />
+        ) : open === "form-details" ? (
+          <UserDetail setOpen={setOpen} />
+        ) : open === "exam" ? (
+          <ATSEExam
+            questions={questions}
+            userDetails={userDetails}
+            setOpen={setOpen}
+          />
+        ) : (
+          <ScoreCard userDetails={userDetails} />
+        )
+
+        // open === "atseExam" ? (
+        //   <ATSEExam
+        //     questions={questions}
+        //     userDetails={userDetails}
+        //     setOpen={setOpen}
+        //   />
+        // ) : (
+        //   <ScoreCard userDetails={userDetails} />
+        // )
+      }
+
+      {/* <UserDetail setOpen={setOpen} mobileNumber={mobileNumber} /> */}
     </Box>
   );
 };
