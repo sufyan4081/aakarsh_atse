@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoginOTP from "./component/LoginOTP";
 import { Box } from "@mui/material";
 import UserDetail from "./component/UserDetail";
@@ -8,9 +8,21 @@ import ScoreCard from "./component/ScoreCard";
 
 const App = () => {
   const [open, setOpen] = useState("login");
-  // const [open, setOpen] = useState("atseExam");
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = ""; // Required for the browser's built-in dialog to work
+    };
 
-  console.log("open", open);
+    // Add the event listener when the component mounts
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   return (
     <Box
       sx={{

@@ -5,13 +5,13 @@ export const ExamContext = createContext();
 
 export const ExamProvider = ({ children }) => {
   const [mobileNumber, setMobileNumber] = useState("");
-  const [examNameData, setExamNameData] = useState("");
+  const [userData, setUserData] = useState("");
   console.log("mobileNumberContext", mobileNumber);
-  console.log("examNameDataContext", examNameData);
+  console.log("userDataContext", userData);
 
   return (
     <ExamContext.Provider
-      value={{ mobileNumber, setMobileNumber, examNameData, setExamNameData }}
+      value={{ mobileNumber, setMobileNumber, userData, setUserData }}
     >
       {children}
     </ExamContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Button,
@@ -8,48 +8,56 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import logo from "../../assets/logo.png";
-import { Slide, toast } from "react-toastify";
 import ConfirmationDialog from "../ConfirmationDialog";
 import { ExamContext } from "../../atseContext/ExamProvider";
 import { useMutation } from "@tanstack/react-query";
-import { examDataById } from "../../api/AtseExam";
+import { examAttempt, examDataById } from "../../api/AtseExam";
 
-const ATSEExam = ({ questions, userDetails, setOpen }) => {
-  const { examNameData } = useContext(ExamContext);
-  console.log("examNameData", examNameData);
+const ATSEExam = ({ userDetails, setOpen }) => {
+  const { userData } = useContext(ExamContext);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [examDialog, setExamDialog] = useState(false);
   const [confirmExam, setConfirmExam] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false); // New state to track submission status
-  const [timeLeft, setTimeLeft] = useState(examNameData.duration * 60); // 30 minutes in
-  const [currentData, setCurrentData] = useState("");
-  const handleExamDialogOpen = () => {
-    setExamDialog(true);
-  };
-  const handleExamDialogClose = () => {
-    setExamDialog(false);
-  };
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
+  const [currentData, setCurrentData] = useState({});
 
   // Mutation for fetching exam data
   const examDataByIdMutation = useMutation({
     mutationFn: (payload) => examDataById(payload),
     onSuccess: (data) => {
-      console.log("Exam Data:", data); // Log the fetched exam data
-      setCurrentData(data.data);
+      console.log("Exam Data:", data);
+      setCurrentData(data.data); // Set currentData with fetched data
+      if (data.data.duration) {
+        setTimeLeft(data.data.duration * 60); // Set timer based on exam duration
+      }
     },
     onError: (error) => {
       console.error("Error fetching exam data:", error);
     },
   });
 
-  console.log("currentData", currentData);
+  // Mutation for submit exam data
+  const examSubmitMutation = useMutation({
+    mutationFn: (payload) => examAttempt(payload),
+    onSuccess: (data) => {
+      console.log("Exam Submit", data);
+      setOpen("score-card");
+    },
+    onError: (error) => {
+      console.error("Error fetching exam data:", error);
+      setOpen("login");
+    },
+  });
+
   // Fetch exam data when component mounts
   useEffect(() => {
-    if (examNameData) {
-      examDataByIdMutation.mutate(examNameData);
+    if (userData.select_exam) {
+      const payload = { examName: userData.select_exam };
+      examDataByIdMutation.mutate(payload);
     }
-  }, [examNameData]); // Dependency array ensures this runs on mount and when examNameData changes
+  }, [userData.select_exam]);
 
   // Timer effect
   useEffect(() => {
@@ -57,13 +65,9 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
       const timer = setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
-
-      return () => clearInterval(timer); // Cleanup on component unmount
-    } else {
-      // Trigger submission only once when timer hits 0
-      if (!isSubmitted) {
-        handleSubmit();
-      }
+      return () => clearInterval(timer);
+    } else if (!isSubmitted) {
+      handleSubmit();
     }
   }, [timeLeft, isSubmitted]);
 
@@ -77,18 +81,20 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
     )}`;
   };
 
-  // Handle answer selection
-  const handleAnswerChange = (e) => {
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [currentQuestion]: e.target.value,
-    });
+  // Handle answer change
+  const handleAnswerChange = (event) => {
+    const { value } = event.target;
+    const questionId = currentData.questions[currentQuestion]._id;
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
   };
 
   // Navigate to next question
   const handleNextQuestion = () => {
     setCurrentQuestion((prev) =>
-      prev + 1 < questions.length ? prev + 1 : prev
+      prev + 1 < currentData.questions.length ? prev + 1 : prev
     );
   };
 
@@ -99,20 +105,32 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
 
   // Submit answers
   const handleSubmit = () => {
-    // Mark as submitted
     if (!isSubmitted) {
       setIsSubmitted(true);
-      examDataByIdMutation.mutate(examNameData);
     }
-    // console.log("Selected Answers:", selectedAnswers);
-    setOpen("score-card");
+    const answersArray = Object.entries(selectedAnswers).map(
+      ([questionId, selectedOption]) => ({
+        questionId,
+        selectedOption,
+      })
+    );
+
+    const payload = {
+      studentId: userData._id,
+      examName: currentData.examName,
+      answers: answersArray,
+    };
+
+    console.log("Payload:", payload);
+    // Use payload for API request
+    examSubmitMutation.mutate(payload);
   };
 
   const handleConfirmExam = () => {
     setConfirmExam(true);
     setIsSubmitted(true);
     handleSubmit();
-    handleExamDialogClose();
+    setExamDialog(false);
   };
 
   return (
@@ -125,9 +143,8 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
       }}
     >
       <Typography textAlign="center" variant="h5">
-        {examNameData?.title}
+        {currentData?.title}
       </Typography>
-      {/* User Information */}
       <Box
         sx={{
           padding: 1,
@@ -140,11 +157,14 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
       >
         <Box sx={{ width: "100%" }}>
           <Typography variant="h6">User Information</Typography>
-          <Typography variant="body2">Name: {userDetails.name}</Typography>
-          <Typography variant="body2">Class: {userDetails.class}</Typography>
-          <Typography variant="body2">Stream: {userDetails.stream}</Typography>
+          <Typography variant="body2">Name: {userData.name}</Typography>
+          <Typography variant="body2">Class: {userData.class}</Typography>
+          <Typography variant="body2">Stream: {userData.stream}</Typography>
           <Typography variant="body2">
-            Exam Name: {examNameData.examName}
+            Exam Name: {userData.select_exam}
+          </Typography>
+          <Typography variant="body2">
+            Total Question: {currentData.totalQuestions}
           </Typography>
         </Box>
         <Box sx={{ textAlign: "right" }}>
@@ -165,34 +185,51 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
           paddingTop: "10px",
         }}
       >
-        {/* Question Display */}
+        {/* Render Questions */}
         <Box>
-          <Typography variant="h6">
-            Q {currentQuestion + 1}: {questions[currentQuestion].question}
-          </Typography>
-          <RadioGroup
-            name={`question-${currentQuestion}`}
-            value={selectedAnswers[currentQuestion] || ""}
-            onChange={handleAnswerChange}
-          >
-            {questions[currentQuestion].options.map((option, index) => (
-              <FormControlLabel
-                key={index}
-                value={option}
-                control={<Radio />}
-                label={option}
-              />
-            ))}
-          </RadioGroup>
+          {currentData.questions ? (
+            currentData.questions.map((question, index) => (
+              <Box key={question._id}>
+                <Typography
+                  variant="h6"
+                  display="inline-flex"
+                  alignItems="center"
+                >
+                  Q {index + 1}:{" "}
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: question.question,
+                    }}
+                  />
+                </Typography>
+                <RadioGroup
+                  name={`question-${index}`}
+                  value={selectedAnswers[question._id] || ""}
+                  onChange={handleAnswerChange}
+                >
+                  {question.options.map((option, idx) => (
+                    <FormControlLabel
+                      key={idx}
+                      value={option.replace(/<[^>]*>/g, "")}
+                      control={<Radio />}
+                      label={
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: option,
+                          }}
+                        />
+                      }
+                    />
+                  ))}
+                </RadioGroup>
+              </Box>
+            ))
+          ) : (
+            <Typography>Loading questions...</Typography>
+          )}
         </Box>
 
-        {/* Timer */}
-        <Box
-          sx={{
-            textAlign: "right",
-            marginBottom: 2,
-          }}
-        >
+        <Box sx={{ textAlign: "right", marginBottom: 2 }}>
           <Typography variant="body1">
             Time Left: {formatTime(timeLeft)}
           </Typography>
@@ -201,37 +238,30 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
 
       {/* Navigation Buttons */}
       <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: 2,
-          textTransform: "none",
-        }}
+        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
       >
-        <Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handlePrevQuestion}
-            disabled={currentQuestion === 0}
-            sx={{ textTransform: "none", marginRight: 1.5 }}
-          >
-            Prev
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleNextQuestion}
-            disabled={currentQuestion >= questions.length - 1}
-            sx={{ textTransform: "none" }}
-          >
-            Next
-          </Button>
-        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handlePrevQuestion}
+          disabled={currentQuestion === 0}
+          sx={{ textTransform: "none", marginRight: 1.5 }}
+        >
+          Prev
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNextQuestion}
+          disabled={currentQuestion >= (currentData.questions?.length || 0) - 1}
+          sx={{ textTransform: "none" }}
+        >
+          Next
+        </Button>
         <Button
           variant="contained"
           color="secondary"
-          onClick={handleExamDialogOpen}
+          onClick={handleConfirmExam}
           sx={{ textTransform: "none" }}
         >
           Submit
@@ -241,7 +271,7 @@ const ATSEExam = ({ questions, userDetails, setOpen }) => {
       {examDialog && (
         <ConfirmationDialog
           open={examDialog}
-          handleClose={handleExamDialogClose}
+          handleClose={() => setExamDialog(false)}
           handleSubmit={handleConfirmExam}
           message="Are you sure you want to submit the exam?"
         />

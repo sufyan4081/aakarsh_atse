@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import logo from "../../assets/logo.png";
+import { ExamContext } from "../../atseContext/ExamProvider";
 
 const ScoreCard = ({ userDetails }) => {
+  const { userData } = useContext(ExamContext);
   return (
     <Box
       sx={{
@@ -28,9 +30,9 @@ const ScoreCard = ({ userDetails }) => {
       >
         <Box sx={{ width: "100%" }}>
           <Typography variant="h6">User Information</Typography>
-          <Typography variant="body2">Name: {userDetails.name}</Typography>
-          <Typography variant="body2">Class: {userDetails.class}</Typography>
-          <Typography variant="body2">Stream: {userDetails.stream}</Typography>
+          <Typography variant="body2">Name: {userData.name}</Typography>
+          <Typography variant="body2">Class: {userData.class}</Typography>
+          <Typography variant="body2">Stream: {userData.stream}</Typography>
         </Box>
         <Box sx={{ textAlign: "right" }}>
           <img src={logo} width="60%" height="100%" alt="aakarsh logo" />
@@ -43,7 +45,7 @@ const ScoreCard = ({ userDetails }) => {
           color="primary"
           sx={{ fontWeight: "bold", marginBottom: 2 }}
         >
-          🎉 Congratulations, {userDetails.name}! 🎉
+          🎉 Congratulations, {userData.name}! 🎉
         </Typography>
 
         {/* <Box sx={{ marginBottom: 2 }}>
@@ -53,10 +55,12 @@ const ScoreCard = ({ userDetails }) => {
         </Box> */}
 
         {/* Scholarship Percentage */}
-        <Box sx={{ marginBottom: 2 }}>
+        {/* <Box sx={{ marginBottom: 2 }}>
           <Typography variant="h6">Scholarship</Typography>
-          <Typography variant="body1">Scholarship Awarded: 35%</Typography>
-        </Box>
+          <Typography variant="body1">
+            You have Pass the Scholarship Test
+          </Typography>
+        </Box> */}
 
         {/* Institute Contact Message */}
         <Box sx={{ marginBottom: 2 }}>
