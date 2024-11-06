@@ -253,15 +253,16 @@ const UserDetail = ({ setOpen }) => {
         {({ errors, touched, handleSubmit, values }) => {
           console.log("values", values);
           return (
-            <Form>
+            <Form style={{ width: "100%", backgroundColor: "#016cb4" }}>
               <Box
                 sx={{
                   maxWidth: "100%",
-                  height: "95vh",
+                  height: "100vh",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
+                data-aos="zoom-in"
               >
                 <Box
                   sx={{
@@ -277,6 +278,7 @@ const UserDetail = ({ setOpen }) => {
                     },
                     borderRadius: "12px",
                     padding: "12px",
+                    backgroundColor: "#ffffff",
                   }}
                 >
                   <Box
