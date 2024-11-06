@@ -42,28 +42,41 @@ const LoginOTP = ({ setOpen }) => {
   };
 
   const sendOtpMutation = useMutation({
-    mutationFn: (payload) => sendOTP(payload),
+    mutationFn: (payload) => {
+      console.log("Simulating OTP send:", payload);
+      // Simulate a successful response
+      return Promise.resolve({ status: 200 });
+    },
     onSuccess: (data) => {
+      console.log("data", data);
       setOtpSent(true);
       setTimer(30);
       setOtpValues(["", "", "", "", "", ""]);
+      console.log("OTP sent successfully (simulated).");
     },
     onError: (data) => {
       setOtpValues(["", "", "", "", "", ""]);
+      console.error("Error sending OTP (simulated).");
     },
   });
 
   const verifyOtpMutation = useMutation({
-    mutationFn: (payload) => verifyOTP(payload),
+    mutationFn: (payload) => {
+      console.log("Simulating OTP Verified:", payload);
+      // Simulate a successful response
+      return Promise.resolve({ status: 200 });
+    },
     onSuccess: (data, id) => {
-      setOtpSent(false);
+      console.log(data, id);
+      console.log("id.mobileNumber", id.mobileNumber);
       setMobileNumber(id.mobileNumber);
-      console.log("phoneNumberLogin", id.mobileNumber);
+      setOtpSent(false);
       setOpen("form-details");
       setOtpValues(["", "", "", "", "", ""]);
     },
     onError: (data) => {
       setOtpValues(["", "", "", "", "", ""]);
+      console.error("Error sending OTP (simulated).");
     },
   });
 
@@ -108,111 +121,122 @@ const LoginOTP = ({ setOpen }) => {
         <Form onSubmit={handleSubmit}>
           <Box
             sx={{
-              border: "1px solid #D9D9D9",
               display: "flex",
-              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              width: "300px",
-              borderRadius: "12px",
-              padding: "12px",
+              height: "95vh",
             }}
           >
             <Box
               sx={{
-                width: "100%",
-                textAlign: "center",
-                color: "darkslategray",
+                border: "1px solid #D9D9D9",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography fontWeight="bold" variant="h5">
-                Login
-              </Typography>
-              <Avatar alt="Aakarsh" src={logo}></Avatar>
-            </Box>
-
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
                 flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "300px",
+                borderRadius: "12px",
+                padding: "12px",
               }}
             >
-              <CustomTextField
-                label="Enter Mobile Number"
-                name="mobileNumber"
-                value={values.mobileNumber} // Make sure to set value from Formik
-                onChange={handleChange} // Handle change using Formik
-                helperText={
-                  touched.mobileNumber && errors.mobileNumber
-                    ? errors.mobileNumber
-                    : ""
-                }
-                disabled={otpSent}
-              />
-
-              {otpSent && (
-                <Box display="flex" gap={1} justifyContent="center">
-                  {otpValues.map((digit, index) => (
-                    <input
-                      key={index}
-                      id={`otp-input-${index}`}
-                      type="text"
-                      maxLength="1"
-                      value={digit}
-                      onChange={(e) => handleOtpChange(e, index)}
-                      style={{
-                        width: "2rem",
-                        height: "2rem",
-                        textAlign: "center",
-                        fontSize: "1.2rem",
-                      }}
-                    />
-                  ))}
-                </Box>
-              )}
-
-              <Button
-                size="medium"
-                variant="contained"
-                onClick={() => {
-                  otpSent
-                    ? handleSubmit()
-                    : sendOtpMutation.mutate({
-                        mobileNumber: values.mobileNumber,
-                      });
+              <Box
+                sx={{
+                  width: "100%",
+                  textAlign: "center",
+                  color: "darkslategray",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
                 }}
-                disabled={
-                  otpSent
-                    ? otpValues.some((value) => value === "")
-                    : values.mobileNumber.length !== 10
-                }
-                sx={{ textTransform: "none", mt: 2 }}
               >
-                {otpSent ? "Login" : "Verify Mobile Number"}
-              </Button>
+                <Typography fontWeight="bold" variant="h5">
+                  Login
+                </Typography>
+                <Avatar alt="Aakarsh" src={logo}></Avatar>
+              </Box>
 
-              {otpSent && (
-                <Button
-                  size="small"
-                  variant="text"
-                  color="primary"
-                  onClick={() =>
-                    sendOtpMutation.mutate({
-                      mobileNumber: values.mobileNumber,
-                    })
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                }}
+              >
+                <CustomTextField
+                  label="Enter Mobile Number"
+                  name="mobileNumber"
+                  value={values.mobileNumber} // Make sure to set value from Formik
+                  onChange={handleChange} // Handle change using Formik
+                  helperText={
+                    touched.mobileNumber && errors.mobileNumber
+                      ? errors.mobileNumber
+                      : ""
                   }
-                  disabled={timer > 0}
-                  sx={{ mt: 1, textTransform: "none" }}
+                  disabled={otpSent}
+                />
+
+                {otpSent && (
+                  <Box display="flex" gap={1} justifyContent="center">
+                    {otpValues.map((digit, index) => (
+                      <input
+                        key={index}
+                        id={`otp-input-${index}`}
+                        type="text"
+                        maxLength="1"
+                        value={digit}
+                        onChange={(e) => handleOtpChange(e, index)}
+                        style={{
+                          width: "2rem",
+                          height: "2rem",
+                          textAlign: "center",
+                          fontSize: "1.2rem",
+                        }}
+                      />
+                    ))}
+                  </Box>
+                )}
+
+                <Button
+                  size="medium"
+                  variant="contained"
+                  onClick={() => {
+                    otpSent
+                      ? handleSubmit()
+                      : sendOtpMutation.mutate({
+                          mobileNumber: values.mobileNumber,
+                        });
+                  }}
+                  disabled={
+                    otpSent
+                      ? otpValues.some((value) => value === "")
+                      : values.mobileNumber.length !== 10
+                  }
+                  sx={{ textTransform: "none", mt: 2 }}
                 >
-                  {timer > 0 ? `Resend OTP in ${timer} seconds` : "Resend OTP"}
+                  {otpSent ? "Login" : "Verify Mobile Number"}
                 </Button>
-              )}
+
+                {otpSent && (
+                  <Button
+                    size="small"
+                    variant="text"
+                    color="primary"
+                    onClick={() =>
+                      sendOtpMutation.mutate({
+                        mobileNumber: values.mobileNumber,
+                      })
+                    }
+                    disabled={timer > 0}
+                    sx={{ mt: 1, textTransform: "none" }}
+                  >
+                    {timer > 0
+                      ? `Resend OTP in ${timer} seconds`
+                      : "Resend OTP"}
+                  </Button>
+                )}
+              </Box>
             </Box>
           </Box>
         </Form>

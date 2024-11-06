@@ -253,93 +253,109 @@ const UserDetail = ({ setOpen }) => {
         {({ errors, touched, handleSubmit, values }) => {
           console.log("values", values);
           return (
-            <Form
-              style={{
-                width: "100vw",
-                height: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <Form>
               <Box
                 sx={{
-                  border: "1px solid #D9D9D9",
+                  maxWidth: "100%",
+                  height: "95vh",
                   display: "flex",
-                  flexDirection: "column",
                   justifyContent: "center",
                   alignItems: "center",
-                  width: "auto",
-                  borderRadius: "12px",
-                  padding: "12px",
                 }}
               >
                 <Box
                   sx={{
-                    width: "100%",
-                    textAlign: "center",
-                    color: "darkslategray",
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 2,
-                  }}
-                >
-                  <Typography fontWeight="bold" variant="h5">
-                    User Details
-                  </Typography>
-                  <Avatar alt="Aakarsh" src={logo} />
-                </Box>
-
-                <Box
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
                     flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: {
+                      lg: "500px",
+                      md: "500px",
+                      sm: "400px",
+                      xs: "350px",
+                    },
+                    borderRadius: "12px",
+                    padding: "12px",
                   }}
                 >
-                  <CustomTextField
-                    label="Enter Name"
-                    name="name"
-                    helperText={touched.name && errors.name ? errors.name : ""}
-                  />
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <CustomTextField
-                      label="Enter Father Name"
-                      name="father_name"
-                      helperText={
-                        touched.father_name && errors.father_name
-                          ? errors.father_name
-                          : ""
-                      }
-                    />
-                    <CustomTextField
-                      label="Enter Email Id"
-                      name="email"
-                      helperText={
-                        touched.email && errors.email ? errors.email : ""
-                      }
-                    />
+                  <Box
+                    sx={{
+                      width: "100%",
+                      textAlign: "center",
+                      color: "darkslategray",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography fontWeight="bold" variant="h5">
+                      User Details
+                    </Typography>
+                    <Avatar alt="Aakarsh" src={logo} />
                   </Box>
-                  <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
-                    <Box sx={{ width: "100%" }}>
-                      <CustomTextField
-                        type="date"
-                        label="Enter DOB"
-                        name="dob"
-                        helperText={touched.dob && errors.dob ? errors.dob : ""}
-                      />
-                      <CustomSelectField
-                        label="Stream"
-                        name="stream"
-                        options={streamOptions}
-                        helperText={
-                          touched.stream && errors.stream ? errors.stream : ""
-                        }
-                      />
+
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <CustomTextField
+                      label="Enter Name"
+                      name="name"
+                      helperText={
+                        touched.name && errors.name ? errors.name : ""
+                      }
+                    />
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <Box width="100%">
+                        <CustomTextField
+                          label="Enter Father Name"
+                          name="father_name"
+                          helperText={
+                            touched.father_name && errors.father_name
+                              ? errors.father_name
+                              : ""
+                          }
+                        />
+                      </Box>
+                      <Box width="100%">
+                        <CustomTextField
+                          label="Enter Email Id"
+                          name="email"
+                          helperText={
+                            touched.email && errors.email ? errors.email : ""
+                          }
+                        />
+                      </Box>
                     </Box>
-                    <Box sx={{ width: "100%" }}>
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <Box width="100%">
+                        <CustomTextField
+                          type="date"
+                          label="Enter DOB"
+                          name="dob"
+                          helperText={
+                            touched.dob && errors.dob ? errors.dob : ""
+                          }
+                        />
+                      </Box>
+                      <Box width="100%">
+                        <CustomSelectField
+                          label="Stream"
+                          name="stream"
+                          options={streamOptions}
+                          helperText={
+                            touched.stream && errors.stream ? errors.stream : ""
+                          }
+                        />
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 2 }}>
                       <CustomSelectField
                         label="Board"
                         name="board"
@@ -357,10 +373,14 @@ const UserDetail = ({ setOpen }) => {
                         }
                       />
                     </Box>
-                  </Box>
-
-                  <Box sx={{ display: "flex", gap: 2, width: "100%" }}>
-                    <Box sx={{ width: "100%" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        width: "100%",
+                        overflow: "hidden", // Hide overflow content
+                      }}
+                    >
                       <CustomSelectField
                         label="Exam"
                         name="select_exam"
@@ -371,8 +391,6 @@ const UserDetail = ({ setOpen }) => {
                             : ""
                         }
                       />
-                    </Box>
-                    <Box sx={{ width: "100%" }}>
                       <CustomSelectField
                         label="Branch"
                         name="branch"
@@ -382,16 +400,16 @@ const UserDetail = ({ setOpen }) => {
                         }
                       />
                     </Box>
-                  </Box>
 
-                  <Button
-                    onClick={handleSubmit} // Trigger Formik's handleSubmit
-                    size="medium"
-                    variant="contained"
-                    type="button"
-                  >
-                    Start Exam
-                  </Button>
+                    <Button
+                      onClick={handleSubmit} // Trigger Formik's handleSubmit
+                      size="medium"
+                      variant="contained"
+                      type="button"
+                    >
+                      Start Exam
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             </Form>

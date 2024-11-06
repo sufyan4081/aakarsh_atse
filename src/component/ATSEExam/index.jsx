@@ -103,11 +103,23 @@ const ATSEExam = ({ userDetails, setOpen }) => {
     setCurrentQuestion((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
-  // Submit answers
+  const handleExamDialogueClosed = () => {
+    setExamDialog(false);
+  };
+
+  // Submit answers - update to open the confirmation dialog
   const handleSubmit = () => {
     if (!isSubmitted) {
-      setIsSubmitted(true);
+      setExamDialog(true); // Open the confirmation dialog
     }
+  };
+
+  // Handle confirmation from the dialog
+  const handleConfirmExam = () => {
+    setConfirmExam(true);
+    setIsSubmitted(true);
+
+    // Prepare the answers payload for submission
     const answersArray = Object.entries(selectedAnswers).map(
       ([questionId, selectedOption]) => ({
         questionId,
@@ -124,155 +136,206 @@ const ATSEExam = ({ userDetails, setOpen }) => {
     console.log("Payload:", payload);
     // Use payload for API request
     examSubmitMutation.mutate(payload);
-  };
 
-  const handleConfirmExam = () => {
-    setConfirmExam(true);
-    setIsSubmitted(true);
-    handleSubmit();
-    setExamDialog(false);
+    setExamDialog(false); // Close the confirmation dialog
   };
 
   return (
     <Box
       sx={{
-        width: { lg: "50%", md: "100%", sm: "100%", xs: "100%" },
-        padding: 2,
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        mt: 2,
+        mb: 2,
         border: "1px solid #D9D9D9",
-        borderRadius: 2,
+        borderRadius: "12px",
+        padding: "10px",
       }}
     >
-      <Typography textAlign="center" variant="h5">
-        {currentData?.title}
-      </Typography>
       <Box
         sx={{
-          padding: 1,
-          borderBottom: "1px solid #ddd",
-          marginBottom: 1,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          maxWidth: "100%",
+          height: "100%",
+          padding: 2,
+          borderRadius: 2,
         }}
       >
-        <Box sx={{ width: "100%" }}>
-          <Typography variant="h6">User Information</Typography>
-          <Typography variant="body2">Name: {userData.name}</Typography>
-          <Typography variant="body2">Class: {userData.class}</Typography>
-          <Typography variant="body2">Stream: {userData.stream}</Typography>
-          <Typography variant="body2">
-            Exam Name: {userData.select_exam}
-          </Typography>
-          <Typography variant="body2">
-            Total Question: {currentData.totalQuestions}
-          </Typography>
-        </Box>
-        <Box sx={{ textAlign: "right" }}>
-          <img src={logo} width="60%" height="100%" alt="aakarsh logo" />
-        </Box>
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          flexDirection: {
-            lg: "row",
-            md: "row",
-            sm: "column-reverse",
-            xs: "column-reverse",
-          },
-          paddingTop: "10px",
-        }}
-      >
-        {/* Render Questions */}
         <Box>
-          {currentData.questions ? (
-            currentData.questions.map((question, index) => (
-              <Box key={question._id}>
-                <Typography
-                  variant="h6"
-                  display="inline-flex"
-                  alignItems="center"
-                >
-                  Q {index + 1}:{" "}
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: question.question,
+          <Typography textAlign="center" variant="h5">
+            {currentData?.title}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            padding: 1,
+            borderBottom: "1px solid #ddd",
+            marginBottom: 1,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ width: "100%" }}>
+            <Typography variant="h6">User Information</Typography>
+            <Typography variant="body2">Name: {userData.name}</Typography>
+            <Typography variant="body2">Class: {userData.class}</Typography>
+            <Typography variant="body2">Stream: {userData.stream}</Typography>
+            <Typography variant="body2">
+              Exam Name: {userData.select_exam}
+            </Typography>
+            <Typography variant="body2">
+              Total Question: {currentData.totalQuestions}
+            </Typography>
+          </Box>
+          <Box sx={{ textAlign: "right" }}>
+            <img src={logo} width="60%" height="100%" alt="aakarsh logo" />
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexDirection: {
+              lg: "row",
+              md: "row",
+              sm: "column-reverse",
+              xs: "column-reverse",
+            },
+            paddingTop: "10px",
+            overflow: "hidden", // Prevent overflow
+            width: "100%",
+          }}
+        >
+          {/* Render Current Question Only */}
+          <Box
+            sx={{
+              width: { lg: "90%", md: "90", sm: "100%", xs: "100%" },
+            }}
+          >
+            {currentData.questions && currentData.questions[currentQuestion] ? (
+              <Box key={currentData.questions[currentQuestion]._id}>
+                <Box key={currentData.questions[currentQuestion]._id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      // justifyContent: "flex",
                     }}
-                  />
-                </Typography>
+                  >
+                    <Typography
+                      sx={{
+                        display: "inline-flex", // Inline layout for horizontal arrangement
+                        alignItems: "center", // Vertical alignment
+                        whiteSpace: "nowrap", // Prevents text from wrapping to a new line
+                      }}
+                      variant="h6"
+                      pr={2} // Adjust padding as necessary
+                    >
+                      Q {currentQuestion + 1}:
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        display: "inline-flex", // Inline-flex to keep items in one line
+                        alignItems: "center",
+                        whiteSpace: "normal", // Allow the question text to wrap normally if it's too long
+                      }}
+                    >
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            currentData.questions[currentQuestion].question,
+                        }}
+                      />
+                    </Typography>
+                  </Box>
+                </Box>
+
                 <RadioGroup
-                  name={`question-${index}`}
-                  value={selectedAnswers[question._id] || ""}
+                  name={`question-${currentQuestion}`}
+                  value={
+                    selectedAnswers[
+                      currentData.questions[currentQuestion]._id
+                    ] || ""
+                  }
                   onChange={handleAnswerChange}
                 >
-                  {question.options.map((option, idx) => (
-                    <FormControlLabel
-                      key={idx}
-                      value={option.replace(/<[^>]*>/g, "")}
-                      control={<Radio />}
-                      label={
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: option,
-                          }}
-                        />
-                      }
-                    />
-                  ))}
+                  {currentData.questions[currentQuestion].options.map(
+                    (option, idx) => (
+                      <FormControlLabel
+                        key={idx}
+                        value={option.replace(/<[^>]*>/g, "")}
+                        control={<Radio />}
+                        label={
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: option,
+                            }}
+                          />
+                        }
+                      />
+                    )
+                  )}
                 </RadioGroup>
               </Box>
-            ))
-          ) : (
-            <Typography>Loading questions...</Typography>
-          )}
-        </Box>
+            ) : (
+              <Typography>Loading questions...</Typography>
+            )}
+          </Box>
 
-        <Box sx={{ textAlign: "right", marginBottom: 2 }}>
-          <Typography variant="body1">
-            Time Left: {formatTime(timeLeft)}
-          </Typography>
+          <Box sx={{ textAlign: "right", marginBottom: 2 }}>
+            <Typography variant="body1">
+              Time Left: {formatTime(timeLeft)}
+            </Typography>
+          </Box>
         </Box>
       </Box>
-
       {/* Navigation Buttons */}
       <Box
         sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePrevQuestion}
-          disabled={currentQuestion === 0}
-          sx={{ textTransform: "none", marginRight: 1.5 }}
-        >
-          Prev
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleNextQuestion}
-          disabled={currentQuestion >= (currentData.questions?.length || 0) - 1}
-          sx={{ textTransform: "none" }}
-        >
-          Next
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleConfirmExam}
-          sx={{ textTransform: "none" }}
-        >
-          Submit
-        </Button>
+        <Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handlePrevQuestion}
+            disabled={currentQuestion === 0}
+            sx={{ textTransform: "none", marginRight: 1.5 }}
+          >
+            Prev
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleNextQuestion}
+            disabled={
+              currentQuestion >= (currentData.questions?.length || 0) - 1
+            }
+            sx={{ textTransform: "none" }}
+          >
+            Next
+          </Button>
+        </Box>
+        <Box>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleSubmit}
+            sx={{ textTransform: "none" }}
+          >
+            Submit
+          </Button>
+        </Box>
       </Box>
-
       {examDialog && (
         <ConfirmationDialog
           open={examDialog}
-          handleClose={() => setExamDialog(false)}
-          handleSubmit={handleConfirmExam}
+          onClose={handleExamDialogueClosed}
+          onConfirm={handleConfirmExam}
           message="Are you sure you want to submit the exam?"
         />
       )}

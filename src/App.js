@@ -27,7 +27,6 @@ const App = () => {
     <Box
       sx={{
         width: "100%",
-        height: "95vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -59,7 +58,7 @@ const App = () => {
         // )
       }
 
-      {/* <UserDetail setOpen={setOpen} mobileNumber={mobileNumber} /> */}
+      {/* <UserDetail setOpen={setOpen} /> */}
     </Box>
   );
 };

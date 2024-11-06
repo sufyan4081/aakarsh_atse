@@ -22,7 +22,7 @@ export const CustomSelectField = ({
   placeholder,
   helperText,
 }) => (
-  <Box sx={{ minHeight: "65px" }}>
+  <Box sx={{ minHeight: "65px", width: "100%", overflow: "hidden" }}>
     <Field
       as={Select}
       name={name}
@@ -30,15 +30,29 @@ export const CustomSelectField = ({
       displayEmpty
       variant="outlined"
       size="small"
-      sx={{ marginTop: "2px" }}
+      sx={{
+        marginTop: "2px",
+        maxWidth: "100%", // Set a maximum width
+        overflow: "hidden", // Hide overflow content
+        textOverflow: "ellipsis", // Add ellipsis for overflowing text
+        whiteSpace: "nowrap", // Prevent text from wrapping
+      }}
     >
       <MenuItem value="" disabled>
         {`Select ${label}`}
       </MenuItem>
       {options && options.length > 0 ? (
-        options?.map((option, index) => (
+        options.map((option, index) => (
           <StyledMenuItem key={option.value} value={option.value}>
-            {option.name} {option[name]}
+            <span
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {option.name}
+            </span>
             {option.image && (
               <Image
                 src={`${option.image}`}
