@@ -40,46 +40,31 @@ const LoginOTP = ({ setOpen }) => {
       }
     }
   };
-
   const sendOtpMutation = useMutation({
-    mutationFn: (payload) => {
-      console.log("Simulating OTP send:", payload);
-      // Simulate a successful response
-      return Promise.resolve({ status: 200 });
-    },
+    mutationFn: (payload) => sendOTP(payload),
     onSuccess: (data) => {
-      console.log("data", data);
       setOtpSent(true);
       setTimer(30);
       setOtpValues(["", "", "", "", "", ""]);
-      console.log("OTP sent successfully (simulated).");
     },
     onError: (data) => {
       setOtpValues(["", "", "", "", "", ""]);
-      console.error("Error sending OTP (simulated).");
     },
   });
 
   const verifyOtpMutation = useMutation({
-    mutationFn: (payload) => {
-      console.log("Simulating OTP Verified:", payload);
-      // Simulate a successful response
-      return Promise.resolve({ status: 200 });
-    },
+    mutationFn: (payload) => verifyOTP(payload),
     onSuccess: (data, id) => {
-      console.log(data, id);
-      console.log("id.mobileNumber", id.mobileNumber);
-      setMobileNumber(id.mobileNumber);
       setOtpSent(false);
+      setMobileNumber(id.mobileNumber);
+      console.log("phoneNumberLogin", id.mobileNumber);
       setOpen("form-details");
       setOtpValues(["", "", "", "", "", ""]);
     },
     onError: (data) => {
       setOtpValues(["", "", "", "", "", ""]);
-      console.error("Error sending OTP (simulated).");
     },
   });
-
   const handleOnSubmit = (values) => {
     const otp = otpValues.join("");
     const payload = {
