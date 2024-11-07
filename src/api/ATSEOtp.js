@@ -35,7 +35,7 @@ export const verifyOTP = async (payload) => {
       position: "top-right",
       autoClose: 5000,
       hideProgressBar: false,
-      closeOnClick: true, 
+      closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       theme: "colored",

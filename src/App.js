@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import "./App.css";
 import AOS from "aos";
 import "aos/dist/aos.css"; // Import the AOS CSS file
+import Footer from "./component/Footer";
 
 const App = () => {
   const [open, setOpen] = useState("login");
@@ -40,39 +41,28 @@ const App = () => {
       sx={{
         width: "100%",
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         overflowX: "hidden",
       }}
     >
-      {
-        open === "login" ? (
-          <Login setOpen={setOpen} />
-        ) : open === "form-details" ? (
-          <UserDetail setOpen={setOpen} />
-        ) : open === "exam" ? (
-          <ATSEExam
-            questions={questions}
-            userDetails={userDetails}
-            setOpen={setOpen}
-          />
-        ) : (
-          <ScoreCard userDetails={userDetails} />
-        )
-        // open === "atseExam" ? (
-        //   <ATSEExam
-        //     questions={questions}
-        //     userDetails={userDetails}
-        //     setOpen={setOpen}
-        //   />
-        // ) : (
-        //   <ScoreCard userDetails={userDetails} />
-        // )
-      }
+      {open === "login" ? (
+        <Login setOpen={setOpen} />
+      ) : open === "form-details" ? (
+        <UserDetail setOpen={setOpen} />
+      ) : open === "exam" ? (
+        <ATSEExam
+          questions={questions}
+          userDetails={userDetails}
+          setOpen={setOpen}
+        />
+      ) : (
+        <ScoreCard userDetails={userDetails} />
+      )}
 
-      {/* <UserDetail setOpen={setOpen} /> */}
-      {/* <ScoreCard userDetails={userDetails} /> */}
-      {/* <Login setOpen={setOpen} /> */}
+      {/* Only show Footer when open is not "exam" */}
+      {open !== "exam" && <Footer />}
     </Box>
   );
 };

@@ -7,6 +7,7 @@ import { CustomTextField } from "../CustomeTextField";
 import { useMutation } from "@tanstack/react-query";
 import { ExamContext } from "../../atseContext/ExamProvider";
 import sendOTP, { verifyOTP } from "../../api/ATSEOtp";
+import { Slide, toast } from "react-toastify";
 
 const LoginOTP = ({ setOpen }) => {
   const { setMobileNumber } = useContext(ExamContext);
@@ -62,8 +63,21 @@ const LoginOTP = ({ setOpen }) => {
       setOpen("form-details");
       setOtpValues(["", "", "", "", "", ""]);
     },
-    onError: (data) => {
+    onError: (error) => {
       setOtpValues(["", "", "", "", "", ""]);
+      const errorMessage =
+        error.response?.data?.message || error.message || "An error occurred"; // Extract error message from error response
+      // Catch any errors and display an error toast
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Slide,
+      });
     },
   });
   const handleOnSubmit = (values) => {
@@ -191,7 +205,11 @@ const LoginOTP = ({ setOpen }) => {
                     ? otpValues.some((value) => value === "")
                     : values.mobileNumber.length !== 10
                 }
-                sx={{ textTransform: "none", mt: 2 }}
+                sx={{
+                  textTransform: "none",
+                  mt: 2,
+                  backgroundColor: "#000036",
+                }}
               >
                 {otpSent ? "Login" : "Verify Mobile Number"}
               </Button>

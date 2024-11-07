@@ -3,6 +3,8 @@ import React from "react";
 import LoginOTP from "../../component/LoginOTP";
 import logo from "../../assets/LogoAakarsh.png";
 import PhoneCallbackIcon from "@mui/icons-material/PhoneCallback";
+import Footer from "../../component/Footer";
+import Header from "../../component/Header";
 
 const Login = ({ setOpen }) => {
   const isSm = useMediaQuery("(max-width:600px)");
@@ -10,61 +12,23 @@ const Login = ({ setOpen }) => {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "flex-start",
+        justifyContent: "space-evenly",
         alignItems: "center",
         flexDirection: "column",
-        minHeight: "100vh",
+        minHeight: "90.8vh",
         width: "100%",
-        backgroundColor: "#016cb4",
+        backgroundColor: "#000036",
         padding: {
           lg: "0px 60px",
           md: "0px 60px",
           sm: "0px 10px",
           xs: "0px 10px",
         },
+        // border: "solid red",
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        <Box
-          sx={{
-            width: {
-              lg: "300px",
-              md: "300px",
-              sm: "200px",
-              xs: "180px",
-            },
-            height: { lg: "250px", md: "250px", sm: "250px", xs: "150px" },
-          }}
-        >
-          <img src={logo} alt="logo" width="100%" height="100%" />
-        </Box>
-        <Box
-          sx={{
-            width: { lg: "200px", md: "150px", sm: "150px", xs: "160px" },
-          }}
-        >
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: "white",
-            }}
-          >
-            <PhoneCallbackIcon />
-            +91 8087379064 <br /> +91 8956781560
-          </Typography>
-        </Box>
-      </Box>
+      {/* header */}
+      <Header />
       <Box
         sx={{
           display: "flex",
@@ -90,36 +54,55 @@ const Login = ({ setOpen }) => {
                 sm: "center",
                 xs: "center",
               },
+              // border: "solid",
+              width: "100%",
             }}
           >
             {isSm ? (
-              <Typography
-                variant="h6"
-                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
-              >
-                iACST
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  ATSE
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: "white", fontWeight: "bold" }}
+                >
+                  ( Aakarsh Talent Search Examination)
+                </Typography>
+              </Box>
             ) : (
-              <Typography
-                variant="h4"
-                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
-              >
-                iACST
-              </Typography>
+              <>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  ATSE
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "white", fontWeight: "bold" }}
+                >
+                  ( Aakarsh Talent Search Examination)
+                </Typography>
+              </>
             )}
-
-            <Typography
-              variant="h6"
-              sx={{ color: "white", fontWeight: "bold" }}
-            >
-              (Aakarsh Scholarship Test)
-            </Typography>
           </Box>
           <Typography
             variant="h4"
             sx={{ color: "#f8e50d", fontWeight: "bold", mt: 1 }}
           >
-            Up to 90% Total Scholarship
+            Up to 100% Total Scholarship
           </Typography>
           <Typography
             variant="h6"

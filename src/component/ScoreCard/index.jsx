@@ -3,6 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import logo from "../../assets/logo.png";
 import { ExamContext } from "../../atseContext/ExamProvider";
 import PhoneCallbackIcon from "@mui/icons-material/PhoneCallback";
+import Header from "../Header";
 
 const ScoreCard = ({ userDetails }) => {
   const { userData } = useContext(ExamContext);
@@ -12,11 +13,13 @@ const ScoreCard = ({ userDetails }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#016cb4",
+        height: "90.8vh",
+        backgroundColor: "#000036",
         width: "100%",
+        flexDirection: "column",
       }}
     >
+      <Header />
       <Box>
         <Box
           sx={{
@@ -62,8 +65,7 @@ const ScoreCard = ({ userDetails }) => {
             {/* Greeting Message */}
             <Typography
               variant="h6"
-              color="primary"
-              sx={{ fontWeight: "bold", marginBottom: 2 }}
+              sx={{ fontWeight: "bold", marginBottom: 2, color: "#0927eb" }}
             >
               🎉 Congratulations, {userData.name}! 🎉
             </Typography>
@@ -84,33 +86,52 @@ const ScoreCard = ({ userDetails }) => {
 
             {/* Institute Contact Message */}
             <Box sx={{ marginBottom: 2 }}>
-              <Typography variant="body2" color="textSecondary">
+              <Typography variant="body2">
                 Please contact the institute for more information on your
                 scholarship and admission process.
               </Typography>
             </Box>
 
-            <Box sx={{ width: "100%" }}>
+            <Box
+              sx={{
+                width: { lg: "280px", md: "150px", sm: "150px", xs: "100%" },
+                //   border: "solid red",
+                display: { lg: "block", md: "block", sm: "flex", xs: "flex" },
+                justifyContent: {
+                  lg: "none",
+                  md: "none",
+                  sm: "center",
+                  xs: "center",
+                },
+                paddingTop: { lg: "0px", md: "0px", sm: "7px", xs: "7px" },
+              }}
+            >
               <Typography
                 variant="body2"
-                color="textSecondary"
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
                 }}
               >
-                <PhoneCallbackIcon color="success" />
-                Nagpur Branch : +91 8956781560, Pune Branch : +91 8087379064{" "}
+                <PhoneCallbackIcon sx={{ color: "lightgreen" }} />
+                Pune Branch &nbsp;&nbsp;&nbsp;: &nbsp;+91 8087379064 <br />{" "}
+                Nagpur Branch : &nbsp;+91 8956781560
                 <br />
+                Call Time
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; 10
+                am to 08 pm
               </Typography>
             </Box>
 
             {/* Download Brochure Button */}
             <Button
               variant="contained"
-              color="primary"
-              sx={{ marginTop: 2, textTransform: "none" }}
+              sx={{
+                marginTop: 2,
+                textTransform: "none",
+                backgroundColor: "#000036",
+              }}
               href="/dummy.pdf"
               download="Aakarsh Career Institute Private Limited Brochure.pdf"
             >

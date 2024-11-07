@@ -17,6 +17,8 @@ import { getBranch } from "../../api/branch";
 import { ExamContext } from "../../atseContext/ExamProvider";
 import { api } from "../../api/axiosInstance";
 import { Slide, toast } from "react-toastify";
+import Header from "../Header";
+import { examData } from "../../data";
 
 const UserDetail = ({ setOpen }) => {
   const { mobileNumber, setUserData, userData } = useContext(ExamContext);
@@ -46,7 +48,7 @@ const UserDetail = ({ setOpen }) => {
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Name is required"),
+    name: Yup.string().required("Full name is required"),
     email: Yup.string().email().required("Email is required"),
     father_name: Yup.string().required("Father name is required"),
     dob: Yup.string().required("DOB is required"),
@@ -217,15 +219,15 @@ const UserDetail = ({ setOpen }) => {
     }))
     .sort((a, b) => a.value - b.value); // Sort classes numerically
 
-  const { data: examData } = useQuery({
-    queryKey: queryKey.exam,
-    queryFn: getExam,
-  });
+  // const { data: examData } = useQuery({
+  //   queryKey: queryKey.exam,
+  //   queryFn: getExam,
+  // });
 
-  const examOptions = examData?.data.map((b) => ({
-    value: b.examName,
-    name: b.examName,
-    image: b.image,
+  const examOptions = examData?.map((b) => ({
+    value: b.value,
+    name: b.name,
+    // image: b.image,
   }));
 
   const { data: branchData } = useQuery({
@@ -253,17 +255,19 @@ const UserDetail = ({ setOpen }) => {
         {({ errors, touched, handleSubmit, values }) => {
           console.log("values", values);
           return (
-            <Form style={{ width: "100%", backgroundColor: "#016cb4" }}>
+            <Form style={{ width: "100%", backgroundColor: "#000036" }}>
               <Box
                 sx={{
                   maxWidth: "100%",
-                  height: "100vh",
+                  height: "90.8vh",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
+                  flexDirection: "column",
                 }}
                 data-aos="zoom-in"
               >
+                <Header />
                 <Box
                   sx={{
                     display: "flex",
@@ -279,6 +283,7 @@ const UserDetail = ({ setOpen }) => {
                     borderRadius: "12px",
                     padding: "12px",
                     backgroundColor: "#ffffff",
+                    mt: 2,
                   }}
                 >
                   <Box
@@ -307,7 +312,7 @@ const UserDetail = ({ setOpen }) => {
                     }}
                   >
                     <CustomTextField
-                      label="Enter Name"
+                      label="Enter Full Name"
                       name="name"
                       helperText={
                         touched.name && errors.name ? errors.name : ""
@@ -408,6 +413,7 @@ const UserDetail = ({ setOpen }) => {
                       size="medium"
                       variant="contained"
                       type="button"
+                      sx={{ backgroundColor: "#000036" }}
                     >
                       Start Exam
                     </Button>

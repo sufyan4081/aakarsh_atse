@@ -17,10 +17,13 @@ export const branchData = [
   { name: "Nagpur", value: "Nagpur" },
   { name: "Pune", value: "Pune" },
 ];
+
 export const examData = [
-  { name: "PCB", value: "PCB" },
-  { name: "PCM", value: "PCM" },
-  { name: "ATSE", value: "ATSE" },
+  { name: "Foundation (8th to 10th std)", value: "Foundation" },
+  { name: "NEET (11th to 12th std)", value: "NEET" },
+  { name: "JEE (11th to 12th std)", value: "JEE" },
+  { name: "MHT-CET (PCM) (11th to 12th std)", value: "MHT-CET (PCM)" },
+  { name: "MHT-CET (PCB) (11th to 12th std)", value: "MHT-CET (PCB)" },
 ];
 
 export const questions = [
