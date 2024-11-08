@@ -38,6 +38,7 @@ const ATSEExam = ({ userDetails, setOpen }) => {
     },
   });
 
+  console.log("selectedAnswers", selectedAnswers);
   // Mutation for submit exam data
   const examSubmitMutation = useMutation({
     mutationFn: (payload) => examAttempt(payload),
@@ -268,7 +269,7 @@ const ATSEExam = ({ userDetails, setOpen }) => {
                     (option, idx) => (
                       <FormControlLabel
                         key={idx}
-                        value={option.replace(/<[^>]*>/g, "")}
+                        value={option}
                         control={<Radio />}
                         label={
                           <span
