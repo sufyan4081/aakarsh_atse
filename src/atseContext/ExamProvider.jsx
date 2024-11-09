@@ -6,6 +6,7 @@ export const ExamContext = createContext();
 export const ExamProvider = ({ children }) => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [userData, setUserData] = useState("");
+  // const [, setUserData] = useState("");
   console.log("mobileNumberContext", mobileNumber);
   console.log("userDataContext", userData);
 

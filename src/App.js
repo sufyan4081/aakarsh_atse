@@ -61,6 +61,8 @@ const App = () => {
         <ScoreCard userDetails={userDetails} />
       )}
 
+      {/* <ScoreCard userDetails={userDetails} /> */}
+      {/* <Login setOpen={setOpen} /> */}
       {/* Only show Footer when open is not "exam" */}
       {open !== "exam" && <Footer />}
     </Box>

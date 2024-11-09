@@ -21,6 +21,7 @@ export const CustomSelectField = ({
   options,
   placeholder,
   helperText,
+  disabled,
 }) => (
   <Box sx={{ minHeight: "65px", width: "100%", overflow: "hidden" }}>
     <Field
@@ -30,6 +31,7 @@ export const CustomSelectField = ({
       displayEmpty
       variant="outlined"
       size="small"
+      disabled={disabled}
       sx={{
         marginTop: "2px",
         maxWidth: "100%", // Set a maximum width

@@ -6,20 +6,17 @@ import { CustomTextField } from "../CustomeTextField";
 import logo from "../../assets/logo.png";
 import { CustomSelectField } from "../CustomSelectField";
 import ConfirmationDialog from "../ConfirmationDialog";
-import { atseStudentReg } from "../../api/AtseUserFrom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getBoard } from "../../api/board";
 import { queryKey } from "../../utils/queryKey";
 import { getStream } from "../../api/stream";
 import { getClass } from "../../api/class";
-import { getExam } from "../../api/exam";
 import { getBranch } from "../../api/branch";
 import { ExamContext } from "../../atseContext/ExamProvider";
 import { api } from "../../api/axiosInstance";
 import { Slide, toast } from "react-toastify";
 import Header from "../Header";
 import { examData } from "../../data";
-
 const UserDetail = ({ setOpen }) => {
   const { mobileNumber, setUserData, userData } = useContext(ExamContext);
   const [examDialog, setExamDialog] = useState(false);
@@ -35,18 +32,18 @@ const UserDetail = ({ setOpen }) => {
   };
 
   const initialValues = {
-    name: "",
-    father_name: "",
-    email: "",
-    phoneNumber: mobileNumber,
-    dob: "",
-    board: "",
-    class: "",
-    stream: "",
-    select_exam: "",
-    branch: "",
+    name: userData?.name || "",
+    parentPhoneNumber: userData?.parentPhoneNumber || "",
+    father_name: userData?.father_name || "",
+    email: userData?.email || "",
+    phoneNumber: mobileNumber || "",
+    dob: userData?.dob || "",
+    board: userData?.board || "",
+    class: userData?.class || "",
+    stream: userData?.stream || "",
+    select_exam: userData?.select_exam || "",
+    branch: userData?.branch || "",
   };
-
   const validationSchema = Yup.object({
     name: Yup.string().required("Full name is required"),
     email: Yup.string().email().required("Email is required"),
@@ -113,25 +110,30 @@ const UserDetail = ({ setOpen }) => {
     console.log("Payload:", values); // Log values here for debugging
 
     // Await user form handling and get the exam data
-    const registrationData = await handleUserForm(values);
+    if (!userData) {
+      const registrationData = await handleUserForm(values);
+      if (registrationData) {
+        // Pass the exam data directly to handleExamCheck
+        const examCheckSuccess = await handleExamCheck(values);
 
-    if (registrationData) {
+        if (examCheckSuccess) {
+          setOpen("exam");
+          handleExamDialogClose(); // Close dialog only if exam check is successful
+        } else {
+          handleExamDialogClose();
+        }
+      }
+    } else {
       // Pass the exam data directly to handleExamCheck
       const examCheckSuccess = await handleExamCheck(values);
-
       if (examCheckSuccess) {
         setOpen("exam");
         handleExamDialogClose(); // Close dialog only if exam check is successful
       } else {
         handleExamDialogClose();
       }
-    } else {
-      // Handle registration failure if needed
-      console.error("Registration failed, exam check will not proceed.");
-      handleExamDialogClose();
     }
   };
-
   const handleExamCheck = async (values) => {
     try {
       const payload = {
@@ -249,6 +251,7 @@ const UserDetail = ({ setOpen }) => {
         validateOnMount={true}
         onSubmit={(values) => {
           setFormValues(values); // Store values before opening the dialog
+          console.log("valuesHandleSubmit", values);
           handleExamDialogOpen(); // Open the dialog
         }}
       >
@@ -311,13 +314,26 @@ const UserDetail = ({ setOpen }) => {
                       flexDirection: "column",
                     }}
                   >
-                    <CustomTextField
-                      label="Enter Full Name"
-                      name="name"
-                      helperText={
-                        touched.name && errors.name ? errors.name : ""
-                      }
-                    />
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <CustomTextField
+                        label="Enter Full Name"
+                        name="name"
+                        helperText={
+                          touched.name && errors.name ? errors.name : ""
+                        }
+                        disabled={userData?.name}
+                      />
+                      <CustomTextField
+                        label="Enter Parent Mobile Number"
+                        name="parentPhoneNumber"
+                        helperText={
+                          touched.parentPhoneNumber && errors.parentPhoneNumber
+                            ? errors.parentPhoneNumber
+                            : ""
+                        }
+                        disabled={userData?.parentPhoneNumber}
+                      />
+                    </Box>
                     <Box sx={{ display: "flex", gap: 2 }}>
                       <Box width="100%">
                         <CustomTextField
@@ -328,6 +344,7 @@ const UserDetail = ({ setOpen }) => {
                               ? errors.father_name
                               : ""
                           }
+                          disabled={userData?.father_name}
                         />
                       </Box>
                       <Box width="100%">
@@ -337,6 +354,7 @@ const UserDetail = ({ setOpen }) => {
                           helperText={
                             touched.email && errors.email ? errors.email : ""
                           }
+                          disabled={userData?.email}
                         />
                       </Box>
                     </Box>
@@ -349,6 +367,7 @@ const UserDetail = ({ setOpen }) => {
                           helperText={
                             touched.dob && errors.dob ? errors.dob : ""
                           }
+                          disabled={userData?.dob}
                         />
                       </Box>
                       <Box width="100%">
@@ -359,6 +378,7 @@ const UserDetail = ({ setOpen }) => {
                           helperText={
                             touched.stream && errors.stream ? errors.stream : ""
                           }
+                          disabled={userData?.stream}
                         />
                       </Box>
                     </Box>
@@ -370,6 +390,7 @@ const UserDetail = ({ setOpen }) => {
                         helperText={
                           touched.board && errors.board ? errors.board : ""
                         }
+                        disabled={userData?.board}
                       />
                       <CustomSelectField
                         label="Class"
@@ -378,6 +399,7 @@ const UserDetail = ({ setOpen }) => {
                         helperText={
                           touched.class && errors.class ? errors.class : ""
                         }
+                        disabled={userData?.class}
                       />
                     </Box>
                     <Box
@@ -397,6 +419,7 @@ const UserDetail = ({ setOpen }) => {
                             ? errors.select_exam
                             : ""
                         }
+                        disabled={userData?.select_exam}
                       />
                       <CustomSelectField
                         label="Branch"
@@ -405,6 +428,7 @@ const UserDetail = ({ setOpen }) => {
                         helperText={
                           touched.branch && errors.branch ? errors.branch : ""
                         }
+                        disabled={userData?.branch}
                       />
                     </Box>
 

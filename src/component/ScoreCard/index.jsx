@@ -36,8 +36,8 @@ const ScoreCard = ({ userDetails }) => {
           }}
           data-aos="zoom-in"
         >
-          <Typography textAlign="center" variant="h5">
-            Score Card
+          <Typography textAlign="center" sx={{ color: "#000036" }} variant="h5">
+            Thank You for Attending The ATSE Exam.
           </Typography>
           {/* User Information */}
           <Box
@@ -67,7 +67,10 @@ const ScoreCard = ({ userDetails }) => {
               variant="h6"
               sx={{ fontWeight: "bold", marginBottom: 2, color: "#0927eb" }}
             >
-              🎉 Congratulations, {userData.name}! 🎉
+              🎉 Congratulations, {userData.name} ! You have qualified for this
+              scholarship 🎉
+              {/* 🎉 Congratulations, Sufyan! You have qualified for this
+              scholarship 🎉 */}
             </Typography>
 
             {/* <Box sx={{ marginBottom: 2 }}>
