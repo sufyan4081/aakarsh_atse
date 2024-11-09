@@ -29,7 +29,6 @@ export const sendOTP = async (payload) => {
 };
 export const verifyOTP = async (payload) => {
   try {
-    console.log("Payload before API call:Verify", payload); // Debugging line
     const res = await api.post("/verify-registration-student-otp", payload);
     if (res.status === 200) {
       toast.success("OTP Verified Successfully", {

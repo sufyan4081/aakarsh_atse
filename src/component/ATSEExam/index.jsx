@@ -27,7 +27,6 @@ const ATSEExam = ({ userDetails, setOpen }) => {
   const examDataByIdMutation = useMutation({
     mutationFn: (payload) => examDataById(payload),
     onSuccess: (data) => {
-      console.log("Exam Data:", data);
       setCurrentData(data.data); // Set currentData with fetched data
       if (data.data.duration) {
         setTimeLeft(data.data.duration * 60); // Set timer based on exam duration
@@ -38,12 +37,10 @@ const ATSEExam = ({ userDetails, setOpen }) => {
     },
   });
 
-  console.log("selectedAnswers", selectedAnswers);
   // Mutation for submit exam data
   const examSubmitMutation = useMutation({
     mutationFn: (payload) => examAttempt(payload),
     onSuccess: (data) => {
-      console.log("Exam Submit", data);
       setOpen("score-card");
     },
     onError: (error) => {
@@ -134,7 +131,6 @@ const ATSEExam = ({ userDetails, setOpen }) => {
       answers: answersArray,
     };
 
-    console.log("Payload:", payload);
     // Use payload for API request
     examSubmitMutation.mutate(payload);
 

@@ -5,7 +5,5 @@ export const getClass = async () => {
     const res = await api.get("class/fetchClass");
     const data = res.data;
     return data;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };

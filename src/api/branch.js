@@ -5,7 +5,5 @@ export const getBranch = async () => {
     const res = await api.get("branch/branches");
     const data = res.data;
     return data;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };

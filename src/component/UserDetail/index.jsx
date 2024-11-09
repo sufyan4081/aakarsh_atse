@@ -17,11 +17,12 @@ import { api } from "../../api/axiosInstance";
 import { Slide, toast } from "react-toastify";
 import Header from "../Header";
 import { examData } from "../../data";
+
 const UserDetail = ({ setOpen }) => {
   const { mobileNumber, setUserData, userData } = useContext(ExamContext);
   const [examDialog, setExamDialog] = useState(false);
   const [formValues, setFormValues] = useState(null); // State to store form values before confirmation
-  console.log("mobileNumberForm", mobileNumber);
+
   const handleExamDialogOpen = () => {
     setExamDialog(true);
   };
@@ -61,9 +62,8 @@ const UserDetail = ({ setOpen }) => {
       const res = await api.post("/registration_rec/create", values);
 
       if (res.status === 201) {
-        console.log("res.data", res.data);
         setUserData(res.data.data);
-        console.log("userData", userData);
+
         toast.success("Registration Successful!", {
           position: "top-right",
           autoClose: 5000,
@@ -107,8 +107,6 @@ const UserDetail = ({ setOpen }) => {
   };
 
   const handleOnSubmit = async (values) => {
-    console.log("Payload:", values); // Log values here for debugging
-
     // Await user form handling and get the exam data
     if (!userData) {
       const registrationData = await handleUserForm(values);
@@ -139,9 +137,9 @@ const UserDetail = ({ setOpen }) => {
       const payload = {
         examName: values.select_exam,
       };
-      console.log("userDataCheck", userData);
+
       const res = await api.post("/paperFormat/getbyexamName", payload);
-      console.log("res.dataExam", res.data);
+
       if (res.status === 200) {
         // Exam found successfully
         toast.success("Exam Started!", {
@@ -251,12 +249,11 @@ const UserDetail = ({ setOpen }) => {
         validateOnMount={true}
         onSubmit={(values) => {
           setFormValues(values); // Store values before opening the dialog
-          console.log("valuesHandleSubmit", values);
+
           handleExamDialogOpen(); // Open the dialog
         }}
       >
         {({ errors, touched, handleSubmit, values }) => {
-          console.log("values", values);
           return (
             <Form style={{ width: "100%", backgroundColor: "#000036" }}>
               <Box

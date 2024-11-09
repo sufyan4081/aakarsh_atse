@@ -3,10 +3,8 @@ import { api } from "./axiosInstance";
 
 export const atseStudentReg = async (payload) => {
   try {
-    console.log("Payload before API call:", payload); // Debugging line
     // Await the API call to ensure it's complete before proceeding
     const res = await api.post("/registration_rec/create", payload);
-    console.log("res:", res); // Debugging line
 
     if (res.status === 201) {
       toast.success("Exam Started!", {

@@ -5,7 +5,5 @@ export const getStream = async () => {
     const res = await api.get("streams/fetchStream");
     const data = res.data;
     return data;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };

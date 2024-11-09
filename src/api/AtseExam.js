@@ -3,10 +3,9 @@ import { api } from "./axiosInstance";
 
 export const examDataById = async (payload) => {
   try {
-    console.log("Payload before API call:", payload); // Debugging line
     // Await the API call to ensure it's complete before proceeding
     const res = await api.post("/paperFormat/getbyexamName", payload);
-    console.log("res.dataExamAPI", res);
+
     return res.data;
   } catch (error) {
     const errorMessage =
@@ -28,10 +27,9 @@ export const examDataById = async (payload) => {
 
 export const examAttempt = async (payload) => {
   try {
-    console.log("Payload before API call:", payload); // Debugging line
     // Await the API call to ensure it's complete before proceeding
     const res = await api.post("/registration_rec/attempt", payload);
-    console.log("attemptAPI", res);
+
     if (res.status === 201) {
       toast.success("Exam submitted successfully", {
         position: "top-right",

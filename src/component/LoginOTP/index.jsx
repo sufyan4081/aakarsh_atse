@@ -72,8 +72,7 @@ const LoginOTP = ({ setOpen }) => {
     onSuccess: (data, id) => {
       setOtpSent(false);
       setMobileNumber(id.mobileNumber);
-      console.log("id.mobileNumber", id);
-      console.log("already exist", data);
+
       if (data.data) {
         setUserData(data.data);
         setOpen("form-details");
@@ -93,8 +92,6 @@ const LoginOTP = ({ setOpen }) => {
       mobileNumber: values.mobileNumber,
       enteredOTP: otp,
     };
-
-    console.log("payload", payload);
 
     verifyOtpMutation.mutate(payload);
   };

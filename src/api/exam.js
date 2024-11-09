@@ -5,7 +5,5 @@ export const getExam = async () => {
     const res = await api.get("exam/fetchExams");
     const data = res.data;
     return data;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
 };
